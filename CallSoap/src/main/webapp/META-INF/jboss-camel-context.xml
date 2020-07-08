@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:camel="http://camel.apache.org/schema/spring"
+    xmlns:cxf="http://camel.apache.org/schema/cxf"
+    xmlns:osgi="http://www.springframework.org/schema/osgi"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd       http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf-2.8.3.xsd">
+    <camelContext id="spring-context" xmlns="http://camel.apache.org/schema/spring">
+        <!--  <routeBuilder ref="callsoaproute"/>-->
+        <endpoint id="xml2json" uri="dozer:xml2json?sourceModel=org.w3._2003._05.soap_envelope_1593662994930.Envelope&amp;targetModel=singe_json_example.Singejsonexample&amp;marshalId=transform-json&amp;unmarshalId=orgw3_2003_05soap_envelope_1593662994930&amp;mappingFile=transformation.xml"/>
+        <dataFormats>
+            <jaxb
+                contextPath="org.w3._2003._05.soap_envelope_1593662994930" id="orgw3_2003_05soap_envelope_1593662994930"/>
+            <json id="transform-json" library="Jackson"/>
+        </dataFormats>
+        <restConfiguration bindingMode="json" component="jetty"
+            contextPath="/check-phone" host="localhost" port="11234"/>
+        <rest id="rest-call-soap">
+            <!-- <post id="list-phone" uri="/list-phone">
+                <to/> 
+            </post>-->
+            <post id="check-phone" uri="/phone">
+                <to uri="direct:soap_check_phone"/>
+            </post>
+            <!-- <get id="get-root" uri="/">
+                <to/>
+            </get>-->
+        </rest>
+        <!--  <route id="transform_route_xml_json">
+            <from id="_doTrans" uri="ref:singleSoap_Rest"/>
+            <to id="_result" uri="mock:result"/>
+        </route>-->
+        <route id="_route1">
+            <from id="_from1" uri="direct:soap_check_phone"/>
+            <setHeader headerName="Exchange.HTTP_METHOD" id="_setMethod">
+                <constant>POST</constant>
+            </setHeader>
+            <setHeader headerName="Content-Type" id="_setHeader1">
+                <constant>text/xml</constant>
+            </setHeader>
+            <to id="_sendRequest" uri="http://ws.cdyne.com/phoneverify/phoneverify.asmx?bridgeEndpoint=true"/>
+            <to id="_to1" uri="ref:transform-json"/>
+            <marshal id="_marshal_xml" ref="xml2json"/>
+            <to id="_result1" uri="mock:result"/>
+
+        </route>
+    </camelContext>
+    <bean class="org.mike.route.CallSoapRoute" id="callsoaproute"/>
+</beans>

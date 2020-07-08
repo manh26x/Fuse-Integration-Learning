@@ -1,0 +1,173 @@
+{
+	"info": {
+		"_postman_id": "26eec948-4097-44b5-9b1e-bccc8aab7736",
+		"name": "bank",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/BankTransaction/api/1",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "repoOwner",
+						"value": "apache",
+						"type": "text"
+					},
+					{
+						"key": "repoName",
+						"value": "camel",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 17,\r\n    \"fullName\": \"Tom\",\r\n    \"balance\": 1100.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/BankTransaction/api/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/BankTransaction/api/17",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "repoOwner",
+						"value": "apache",
+						"type": "text"
+					},
+					{
+						"key": "repoName",
+						"value": "camel",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 17,\r\n    \"fullName\": \"T0om\",\r\n    \"balance\": 1100.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/BankTransaction/api/17",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"17"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/BankTransaction/api/",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "repoOwner",
+						"value": "apache",
+						"type": "text"
+					},
+					{
+						"key": "repoName",
+						"value": "camel",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 17,\r\n    \"fullName\": \"T0om\",\r\n    \"balance\": 1100.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/BankTransaction/api/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/BankTransaction/api/",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "repoOwner",
+						"value": "apache",
+						"type": "text"
+					},
+					{
+						"key": "repoName",
+						"value": "camel",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 17,\r\n    \"fullName\": \"Tom\",\r\n    \"balance\": 1100.0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/BankTransaction/api/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

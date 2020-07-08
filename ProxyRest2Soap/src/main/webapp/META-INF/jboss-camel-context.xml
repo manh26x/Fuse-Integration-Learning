@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  #%L
+  Wildfly Camel
+  %%
+  Copyright (C) 2013 - 2015 RedHat
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd        http://camel.apache.org/schema/spring https://camel.apache.org/schema/spring/camel-spring.xsd">
+    <camelContext id="spring-context" xmlns="http://camel.apache.org/schema/spring">
+        <endpoint id="trans_xml_result_2_json" uri="dozer:trans_xml_result_2_json?sourceModel=org.xmlsoap.schemas.soap.envelope_1593686526893.Envelope&amp;targetModel=json_result_single.Jsonresultsingle&amp;marshalId=transform-json&amp;unmarshalId=orgxmlsoapschemassoapenvelope_1593686526893&amp;mappingFile=trans_xml_result_2_json.xml"/>
+        <endpoint id="trans_json_2_xml_single" uri="dozer:trans_json_2_xml_single?sourceModel=json_single_request.Jsonsinglerequest&amp;targetModel=org.xmlsoap.schemas.soap.envelope_1593685744697.Envelope&amp;marshalId=orgxmlsoapschemassoapenvelope_1593685744697&amp;unmarshalId=json_single_requestJsonsinglerequest&amp;mappingFile=trans_json_2_xml_single.xml"/>
+        <endpoint id="trans_xml_2_json_result" uri="dozer:trans_xml_2_json_result?sourceModel=org.xmlsoap.schemas.soap.envelope_1593684980923.Envelope&amp;targetModel=json_cover_result_list.Jsoncoverresultlist&amp;marshalId=transform-json&amp;unmarshalId=orgxmlsoapschemassoapenvelope_1593684980923&amp;mappingFile=trans_xml_2_json_result.xml"/>
+        <endpoint id="trans_json_list_2_xml" uri="dozer:trans_json_list_2_xml?sourceModel=json_list_request.Jsonlistrequest&amp;targetModel=org.xmlsoap.schemas.soap.envelope_1593682874933.Envelope&amp;marshalId=orgxmlsoapschemassoapenvelope_1593682874933&amp;unmarshalId=json_list_requestJsonlistrequest&amp;mappingFile=trans_list_json_2_xml.xml"/>
+        <dataFormats>
+            <json id="json_list_requestJsonlistrequest"
+                library="Jackson" unmarshalTypeName="json_list_request.Jsonlistrequest"/>
+            <jaxb
+                contextPath="org.xmlsoap.schemas.soap.envelope_1593682874933" id="orgxmlsoapschemassoapenvelope_1593682874933"/>
+            <jaxb
+                contextPath="org.xmlsoap.schemas.soap.envelope_1593684980923" id="orgxmlsoapschemassoapenvelope_1593684980923"/>
+            <json id="transform-json" library="Jackson"/>
+            <json id="json_single_requestJsonsinglerequest"
+                library="Jackson" unmarshalTypeName="json_single_request.Jsonsinglerequest"/>
+            <jaxb
+                contextPath="org.xmlsoap.schemas.soap.envelope_1593685744697" id="orgxmlsoapschemassoapenvelope_1593685744697"/>
+            <jaxb
+                contextPath="org.xmlsoap.schemas.soap.envelope_1593686526893" id="orgxmlsoapschemassoapenvelope_1593686526893"/>
+        </dataFormats>
+        <restConfiguration bindingMode="json" component="jetty"
+            contextPath="proxy" host="localhost" port="11234"/>
+        <rest id="check">
+            <post id="check_list" uri="list-phone">
+                <to id="_to_list_phone" uri="direct:list_phone_checl"/>
+            </post>
+            <post id="check_single" uri="check_single">
+                <to id="_to_single" uri="direct:check_single"/>
+            </post>
+        </rest>
+        <route id="_post_list">
+            <from id="_from2" uri="direct:list_phone_checl"/>
+            <marshal id="_marshal1" ref="json_list_requestJsonlistrequest"/>
+            <log id="_log_post_list" message="list ${body}"/>
+            <to id="_to1" uri="ref:trans_json_list_2_xml"/>
+            <setHeader headerName="Exchange.HTTP_METHOD" id="_setHeader1">
+                <constant>POST</constant>
+            </setHeader>
+            <setHeader headerName="Content-Type" id="_setHeader2">
+                <constant>text/xml</constant>
+            </setHeader>
+            <removeHeader headerName="Exchange.HTTP_URI" id="_removeHeader1"/>
+            <to id="_call_soap" uri="http://ws.cdyne.com/phoneverify/phoneverify.asmx?bridgeEndpoint=true"/>
+            <to id="_to2" uri="ref:trans_xml_2_json_result"/>
+            <unmarshal id="_unmarshal_json" ref="transform-json"/>
+        </route>
+        <route id="_route1">
+            <from id="_from1" uri="direct:check_single"/>
+            <marshal id="_marshal_json" ref="json_single_requestJsonsinglerequest"/>
+            <to id="_to3" uri="ref:trans_json_2_xml_single"/>
+            <setHeader headerName="Exchange.HTTP_METHOD" id="_set_method_post">
+                <constant>POST</constant>
+            </setHeader>
+            <setHeader headerName="Content-Type" id="_set_content">
+                <constant>text/xml</constant>
+            </setHeader>
+            <removeHeader headerName="Exchange.HTTP_URI" id="_removeHeaderURI"/>
+            <to id="_call_soap_single" uri="http://ws.cdyne.com/phoneverify/phoneverify.asmx?bridgeEndpoint=true"/>
+            <to id="_to4" uri="ref:trans_xml_result_2_json"/>
+            <unmarshal id="_unmarshal_single_json" ref="transform-json"/>
+        </route>
+    </camelContext>
+</beans>

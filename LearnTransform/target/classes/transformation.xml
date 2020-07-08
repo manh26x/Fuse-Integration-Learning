@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings xmlns="http://dozermapper.github.io/schema/bean-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://dozermapper.github.io/schema/bean-mapping https://dozermapper.github.io/schema/bean-mapping.xsd">
+    <configuration>
+        <wildcard>false</wildcard>
+    </configuration>
+    <mapping>
+        <class-a>generated_1592999595102.ABCOrder</class-a>
+        <class-b>xyzorderschema.XyzOrderSchema</class-b>
+        <field>
+            <a>header.customerNum</a>
+            <b>custId</b>
+        </field>
+        <field>
+            <a>header.orderNum</a>
+            <b>orderId</b>
+        </field>
+        <field>
+            <a>header.status</a>
+            <b>priority</b>
+        </field>
+        <field>
+            <a>orderItems.item</a>
+            <b>lineItems</b>
+        </field>
+    </mapping>
+    <mapping>
+        <class-a>generated_1592999595102.ABCOrder$OrderItems$Item</class-a>
+        <class-b>xyzorderschema.LineItem</class-b>
+        <field>
+            <a>id</a>
+            <b>itemId</b>
+        </field>
+        <field>
+            <a>price</a>
+            <b>cost</b>
+        </field>
+        <field>
+            <a>quantity</a>
+            <b>amount</b>
+        </field>
+    </mapping>
+</mappings>

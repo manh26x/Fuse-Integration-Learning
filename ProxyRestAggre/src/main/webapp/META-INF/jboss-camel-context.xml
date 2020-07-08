@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  #%L
+  Wildfly Camel
+  %%
+  Copyright (C) 2013 - 2015 RedHat
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd        http://camel.apache.org/schema/spring https://camel.apache.org/schema/spring/camel-spring.xsd">
+    <import resource="classpath:META-INF/jpa-camel-context.xml"/>
+    <bean
+        class="org.apache.camel.processor.aggregate.DefaultAggregateController" id="controller"/>
+    <bean class="org.mike.adapter.MulticastStrategy" id="multicast_st"/>
+    <bean class="org.mike.aggre.EnrichAggre" id="aggregationStrategy"/>
+    <bean class="org.apache.camel.builder.DeadLetterChannelBuilder" id="myDeadLetterErrorHandler">
+        <property name="deadLetterUri" value="seda:dead"/>
+        <property name="redeliveryPolicy" ref="myRedeliveryPolicyConfig"/>
+    </bean>
+    <bean class="org.apache.camel.processor.RedeliveryPolicy" id="myRedeliveryPolicyConfig">
+        <property name="maximumRedeliveries" value="10"/>
+        <property name="redeliveryDelay" value="2000"/>
+    </bean>
+    
+    <camelContext errorHandlerRef="myDeadLetterErrorHandler" 
+        id="spring-context-1" xmlns="http://camel.apache.org/schema/spring">
+        <onException useOriginalMessage="true">
+            <exception>org.apache.camel.http.common.HttpOperationFailedException</exception>
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <transform id="_transform1">
+                <simple>Error reported: ${exception.message} - cannot process this message.
+                </simple>
+            </transform>
+            <setHeader headerName="Subject" id="_header1">
+                <simple>Exception report! ${id}</simple>
+            </setHeader>
+            <wireTap id="_wireTap1" uri="direct:sendMail"/>
+            <!--        <loop>
+                <simple>
+            		${header.loop}
+            	</simple>
+                <bean method="addEmailHeader" ref="aggregationStrategy"/>
+                <toD id="_to1" uri="smtps:reportexception.savis@smtp.gmail.com:465?to=${header.email}&amp;password=exception123"/>
+            </loop> -->
+        </onException>
+        <restConfiguration bindingMode="json" component="jetty"
+            contextPath="onegate" host="localhost" port="15678"/>
+        <rest id="onegate_api">
+            <post id="init" type="org.mike.model.ElementPost" uri="init">
+                <to uri="direct:init"/>
+            </post>
+            <get id="get_exception" uri="exception">
+                <route id="api_exception_route">
+                    <setHeader headerName="Exchange.HTTP_METHOD" id="_headerMethod">
+                        <constant>GET</constant>
+                    </setHeader>
+                    <to id="_to_exception" uri="https://onegate.gosign.vn:8243/lgsp/mic/payment/1.0.0/init?bridgeEndpoint=true"/>
+                </route>
+            </get>
+        </rest>
+        <route id="_get_payment">
+            <from id="_post_init" uri="direct:init"/>
+            <setHeader headerName="idLogin" id="_setHeaderIdLogin">
+                <simple>id</simple>
+            </setHeader>
+            <marshal id="json">
+                <json library="Gson"/>
+            </marshal>
+            <setHeader headerName="goFirst" id="_setHeader1">
+                <constant>aggre</constant>
+            </setHeader>
+            <setHeader headerName="isOke" id="_setHeader4">
+                <constant>false</constant>
+            </setHeader>
+            <multicast id="_multicast1">
+                <to id="_to3" uri="direct:_aggregate"/>
+                <to id="_to4" uri="direct:get-token"/>
+            </multicast>
+        </route>
+        <route id="_aggregate_route">
+            <from id="_to2" uri="direct:_aggregate"/>
+            <aggregate aggregateControllerRef="controller"
+                completionSize="2" id="_aggregate" strategyRef="get_openapi_adapter">
+                <correlationExpression>
+                    <header>idLogin</header>
+                </correlationExpression>
+                <!--   <log id="_log2" message="body ${body}"/>
+                <setHeader headerName="idLogin" id="_setHeader2">
+                    <simple>id</simple>
+                </setHeader>
+                <setHeader headerName="isOK" id="_setHeader3">
+                    <constant>true</constant>
+                </setHeader>
+                <to id="_to1" uri="direct:_aggregate"/>-->
+                <to id="_toInit" uri="https://onegate.gosign.vn:8243/lgsp/mic/payment/1.0.0/init?bridgeEndpoint=true"/>
+                <unmarshal id="_unmarshal1">
+                    <json library="Gson"/>
+                </unmarshal>
+                <setHeader headerName="idLogin" id="_setHeader2">
+                    <simple>id</simple>
+                </setHeader>
+                <setHeader headerName="isOke" id="_setHeader3">
+                    <constant>true</constant>
+                </setHeader>
+                <to id="_to1" uri="direct:_aggregate"/>
+            </aggregate>
+            <process id="_process1" ref="keep_result"/>
+        </route>
+        <route id="_get_token">
+            <from id="_from3" uri="direct:get-token"/>
+            <setOutHeader headerName="idLogin" id="_setOutHeader1">
+                <simple>${header.idLogin}</simple>
+            </setOutHeader>
+            <removeHeader headerName="Exchange.HTTP_URI" id="_removeHeader1"/>
+            <setBody id="_setBodyLogin">
+                <constant>grant_type=client_credentials</constant>
+            </setBody>
+            <setHeader headerName="Exchange.CONTENT_TYPE" id="_setHeaderType">
+                <constant>application/x-www-form-urlencoded</constant>
+            </setHeader>
+            <setHeader headerName="Exchange.HTTP_METHOD" id="_setHeaderMethod">
+                <constant>POST</constant>
+            </setHeader>
+            <to id="_toLogin" uri="https://onegate.gosign.vn:8243/token?bridgeEndpoint=true&amp;authMethod=Basic&amp;authUsername=VyNJ3fKxil7cDoFvlWpetJ3sr6Qa&amp;authPassword=VIl7HFYlNrgqRd6s6yecaLHN4S4a"/>
+            <unmarshal id="covert_json">
+                <json library="Gson"/>
+            </unmarshal>
+            <setHeader headerName="isOke" id="_setHeader5">
+                <constant>false</constant>
+            </setHeader>
+            <setHeader headerName="goFirst" id="_setHeader11">
+                <constant>token</constant>
+            </setHeader>
+            <to id="_to_aggregate2" pattern="InOnly" uri="direct:_aggregate"/>
+        </route>
+        <route id="_sendMail">
+            <from id="_receiveMail" uri="direct:sendMail"/>
+            <enrich id="_enrich1" strategyRef="aggregationStrategy">
+                <constant>jpa:org.mike.entity.Email?query=select c from org.mike.entity.Email c</constant>
+            </enrich>
+            <recipientList delimiter=";" id="_recipientList1">
+                <header>emails</header>
+            </recipientList>
+        </route>
+        <route id="_deadLetter">
+            <from id="_deadLetterEp" uri="seda:dead"/>
+            <setBody id="_deadLetterBody">
+                <simple>ERROR! ${body}</simple>
+            </setBody>
+            <log id="_log1" message="dead letter ${body}"/>
+        </route>
+    </camelContext>
+    <bean class="org.mike.process.KeepResult" id="keep_result"/>
+    <bean class="org.mike.adapter.OpenapiAdapter" id="get_openapi_adapter"/>
+</beans>

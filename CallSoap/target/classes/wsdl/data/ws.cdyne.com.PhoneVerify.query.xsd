@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://ws.cdyne.com/PhoneVerify/query">
+  <xs:element name="CheckPhoneNumberResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="CheckPhoneNumberResult">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Valid" type="xs:string"/>
+              <xs:element name="OriginalNumber" type="xs:short"/>
+              <xs:element name="CleanNumber" type="xs:short"/>
+              <xs:element name="Wireless" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

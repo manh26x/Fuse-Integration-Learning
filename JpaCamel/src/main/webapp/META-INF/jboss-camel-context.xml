@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans         http://www.springframework.org/schema/beans/spring-beans.xsd         http://www.springframework.org/schema/context         http://www.springframework.org/schema/context/spring-context.xsd         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <import resource="classpath:META-INF/jpa-camel-context.xml"/>
+    <!--  <bean class="org.mike.route.JpaRoute" id="routes"/>-->
+    <!-- define the gson data format, where we configure the data format using the properties -->
+    <bean class="org.apache.camel.component.gson.GsonDataFormat" id="gson">
+        <!-- we want to unmarshal to person pojo -->
+        <property name="unmarshalType" value="org.mike.entity.BankAccount"/>
+    </bean>
+    <bean class="org.mike.process.SendMoney" id="processTransaction"/>
+    <camelContext id="jpa-jmw-tx" typeConverterStatisticsEnabled="true" xmlns="http://camel.apache.org/schema/spring">
+        <onException id="onISE">
+            <exception>org.mike.exception.BankAccountException</exception>
+            <redeliveryPolicy maximumRedeliveries="1"/>
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <rollback/>
+        </onException>
+        <!--  <routeBuilder ref="routes"/>-->
+        <route id="_startSendMoney">
+            <from id="_from1" uri="direct:start"/>
+            <transacted id="_transacted"/>
+            <to id="_to2" uri="direct:SendQueue"/>
+            <setHeader headerName="id" id="_setHeader1">
+                <simple>${header.fromId}</simple>
+            </setHeader>
+            <setHeader headerName="amount" id="_setHeader2">
+                <simple>-${header.amount}</simple>
+            </setHeader>
+            <to id="_to1" uri="direct:SendQueue"/>
+        </route>
+        <route id="produce">
+            <from id="sedaProduce" uri="direct:SendQueue"/>
+            <toD id="_devMoney" uri="jpa:org.mike.entity.BankAccount?query=select c from org.mike.entity.BankAccount c where c.id= ${header.id}"/>
+            <process id="_process1" ref="processTransaction"/>
+            <to id="_update" uri="jpa:org.mike.entity.BankAccount?usePersist=true&amp;flushOnSend=true&amp;joinTransaction=true"/>
+            <to id="result" uri="mock:result"/>
+        </route>
+    </camelContext>
+</beans>

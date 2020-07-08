@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings xmlns="http://dozermapper.github.io/schema/bean-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://dozermapper.github.io/schema/bean-mapping https://dozermapper.github.io/schema/bean-mapping.xsd">
+    <configuration>
+        <wildcard>false</wildcard>
+    </configuration>
+    <mapping>
+        <class-a>org.xmlsoap.schemas.soap.envelope_1593684980923.Envelope</class-a>
+        <class-b>json_cover_result_list.Jsoncoverresultlist</class-b>
+        <field>
+            <a>body.checkPhoneNumbersResponse.checkPhoneNumbersResult.phoneReturn</a>
+            <b>PhoneReturn</b>
+        </field>
+    </mapping>
+    <mapping>
+        <class-a>com.cdyne.ws.phoneverify.query_1593684980923.CheckPhoneNumbersResponse$CheckPhoneNumbersResult$PhoneReturn</class-a>
+        <class-b>json_cover_result_list.PhoneReturn</class-b>
+        <field>
+            <a>valid</a>
+            <b>Valid</b>
+        </field>
+        <field>
+            <a>originalNumber</a>
+            <b>OriginalNumber</b>
+        </field>
+        <field>
+            <a>wireless</a>
+            <b>Wireless</b>
+        </field>
+        <field>
+            <a>cleanNumber</a>
+            <b>CleanNumber</b>
+        </field>
+    </mapping>
+</mappings>

@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
+	
+	<bean id="jpa" class="org.apache.camel.component.jpa.JpaComponent">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="camel" />
+	</bean>
+	<jee:jndi-lookup id="transactionManager" jndi-name="java:/TransactionManager"/>
+	
+    <bean id="jtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+        <property name="transactionManager" ref="transactionManager" />
+    </bean>
+	<!-- config transaction xa 
+	 <jee:jndi-lookup id="connectionFactory"  jndi-name="java:jboss/DefaultJMSConnectionFactory" /> 
+	 <bean id="jmsConfiguration" class="org.apache.camel.component.jms.JmsConfiguration">
+        <property name="transactionManager" ref="jtaTransactionManager"/>
+      <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="transacted" value="true"/>
+    </bean>
+     <bean id="PROPAGATION_REQUIRED" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
+        <property name="transactionManager" ref="jtaTransactionManager"/>
+        <property name="propagationBehaviorName" value="PROPAGATION_REQUIRED"/>
+    </bean>
+    <bean id="jms" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="configuration" ref="jmsConfiguration"/>
+    </bean> -->
+</beans>

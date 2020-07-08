@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings xmlns="http://dozermapper.github.io/schema/bean-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://dozermapper.github.io/schema/bean-mapping https://dozermapper.github.io/schema/bean-mapping.xsd">
+    <configuration>
+        <wildcard>false</wildcard>
+    </configuration>
+    <mapping>
+        <class-a>org.w3._2003._05.soap_envelope_1593661931089.Envelope</class-a>
+        <class-b>singe_json_example.Singejsonexample</class-b>
+        <field>
+            <a>body.checkPhoneNumberResponse.checkPhoneNumberResult.valid</a>
+            <b>Valid</b>
+        </field>
+        <field>
+            <a>body.checkPhoneNumberResponse.checkPhoneNumberResult.originalNumber</a>
+            <b>OriginalNumber</b>
+        </field>
+        <field>
+            <a>body.checkPhoneNumberResponse.checkPhoneNumberResult.wireless</a>
+            <b>Wireless</b>
+        </field>
+        <field>
+            <a>body.checkPhoneNumberResponse.checkPhoneNumberResult.cleanNumber</a>
+            <b>CleanNumber</b>
+        </field>
+    </mapping>
+</mappings>
